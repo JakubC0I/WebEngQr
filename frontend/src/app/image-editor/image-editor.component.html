@@ -1,0 +1,44 @@
+<div class="text-bg-dark d-flex flex-column text-center p-sm-5">
+  <h1>Add information to your qr-code</h1>
+
+  <form action="/generate/qr/" class="text-bg-dark d-flex flex-column p-3" [formGroup]="fg" (ngSubmit)="generateQr()">
+    <label class="form-label" for="firstname">Firstname of the ticket owner</label>
+    <input class="form-control" type="text" name="firstname" id="firstname" placeholder="firstname" formControlName="firstname">
+    <label class="form-label" for="lastname">Lastname of the ticket owner</label>
+    <input class="form-control" type="text" name="lastname" id="lastname" placeholder="lastname" formControlName="lastname">
+    <label class="form-label" for="eventName">Name of the event</label>
+    <!--  Giver user an option to create tag and use it automatically-->
+    <input class="form-control" type="text" name="eventName" id="eventName" placeholder="eventName" formControlName="eventName">
+    <div class="form-check form-switch m-3">
+      <input class="form-check-input" type="checkbox" name="encrypt" id="encrypt" formControlName="encrypt">
+      <label class="form-check-label" for="encrypt">Do you want to encrypt information on your qr-code? <a>What does it mean?</a></label>
+    </div>
+    <h2>Additional fields</h2>
+    <div formArrayName="additionalFields">
+      <div class="fields d-flex mb-4" *ngFor="let field of getFields().controls; let i=index" [formGroupName]="i">
+        <div class="name-field flex-grow-0">
+          <p>Name of the field:</p>
+          <input class="form-control" type="text" formControlName="key">
+        </div>
+        <div class="value-field flex-grow-1">
+          <p>Value of the field:</p>
+          <input class="form-control" type="text" formControlName="value">
+        </div>
+      </div>
+    </div>
+    <button class="btn btn-light" (click)="addField()">Add field</button>
+    <div class="m-auto btn d-flex flex-column align-items-center btn-light mt-5">
+      <button type="submit" class="btn btn-light pb-3">
+        <p>Generate QR-Code</p>
+        <img src="/assets/authors.png">
+      </button>
+      <label for="qrSize">Optional size of your code</label>
+      <input class="text-center" [formControl]="qrSize" type="text" id="qrSize">
+    </div>
+  </form>
+
+
+  <app-draggable imageData="{{image}}"></app-draggable >
+
+<button class="btn btn-light mt-5">Merge</button>
+</div>

@@ -1,0 +1,13 @@
+.draggable {
+  position: absolute;
+  z-index: 9;
+  background-color: #f1f1f1;
+  text-align: center;
+  cursor: move;
+}
+
+.canvasBox {
+  max-width: 100vw;
+  position: relative;
+  box-sizing: border-box;
+}

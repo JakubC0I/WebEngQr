@@ -1,0 +1,11 @@
+.absolute-window {
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  left: 50%;
+  top: 40%;
+  transform: translate(-50%, -50%);
+  padding: 4vw;
+  border-radius: 6px;
+  width: max-content;
+}
