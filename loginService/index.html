@@ -1,0 +1,33 @@
+<html>
+<head>
+    <link rel="stylesheet" href="maincss.css">
+</head>
+<body>
+    <div class="upperBar">
+        <h1>Database interaction test</h1>
+    </div>
+    <div class="baseWrapper">
+        <p>Content of the database:</p>
+        <pre class="databaseContent" id="dbContent"></pre>
+    </div>
+    <div class="baseWrapper">
+        <button type="button" onclick="changeContent()">Display database content</button>
+        <form>
+            <input type="text" id="textId" name="textName"><br>
+            <button type="button" onclick="submitForm()">Append data to database</button>
+        </form>
+    </div>
+    <div class="baseWrapper">
+        <p>Is your file in the database:</p>
+        <pre class="databaseContent" id="dbExists"></pre>
+    </div>
+    <div class="baseWrapper">
+        <form>
+            <input type="text" id="textId2" name="textName2"><br>
+            <button type="button" onclick="findData()">Find data in database</button>
+        </form>
+    </div>
+</body>
+
+<script src="./scripts/browser-interaction.js"></script>
+</html>
