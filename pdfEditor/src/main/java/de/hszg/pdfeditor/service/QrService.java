@@ -50,6 +50,11 @@ public class QrService {
         return new BarcodeQRCode(encryptTicket(ticketJson));
     }
 
+    public ByteMatrix createSvgQrCode(String ticketJson, int size) {
+        QRCodeWriter qrCodeWriter = new QRCodeWriter();
+        return qrCodeWriter.encode(encryptTicket(ticketJson), size, size);
+    }
+
     public String encryptTicket(String ticketJson) {
         try {
             return keyGeneratorService.encrypt(ticketJson);

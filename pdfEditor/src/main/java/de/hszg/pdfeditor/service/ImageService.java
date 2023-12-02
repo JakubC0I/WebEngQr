@@ -1,33 +1,26 @@
 package de.hszg.pdfeditor.service;
 
 import com.itextpdf.barcodes.BarcodeQRCode;
-import com.itextpdf.io.image.ImageType;
-import com.itextpdf.io.image.JpegImageData;
+import com.itextpdf.barcodes.qrcode.ByteMatrix;
 import com.itextpdf.kernel.colors.Color;
 import com.itextpdf.kernel.geom.Rectangle;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.kernel.pdf.canvas.PdfCanvas;
 import com.itextpdf.kernel.pdf.colorspace.PdfCieBasedCs;
-import com.itextpdf.kernel.pdf.xobject.PdfXObject;
 import org.jfree.svg.SVGGraphics2D;
-import org.jfree.svg.SVGGraphicsDevice;
-import org.jfree.svg.SVGUtils;
 import org.springframework.stereotype.Service;
 
-import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.awt.image.ImageObserver;
-import java.awt.image.RenderedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
 @Service
-public class PdfService {
+public class ImageService {
 
     public PdfDocument createPdfDocument(String path) {
         PdfWriter pdfWriter;
@@ -86,16 +79,9 @@ public class PdfService {
     }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
+    public void generateQrSVG(ByteMatrix byteMatrix) {
+        int matrixWidth = byteMatrix.getWidth();
+        int matrixHeight = byteMatrix.getHeight();
+        SVGGraphics2D g2 = new SVGGraphics2D(matrixWidth, matrixWidth);
+    }
 }

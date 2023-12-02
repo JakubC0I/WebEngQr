@@ -1,16 +1,20 @@
-  <div class="canvasBox">
-    <canvas #myCanvas id="canvas">
-    </canvas>
-  </div>
+<div class="canvasBox">
   <div #draggable class="draggable" (touchstart)="touchDragElement($event)" (mousedown)="dragElement($event)">
     <img #qrImage>
   </div>
+  <canvas #myCanvas id="canvas">
+  </canvas>
 
-  <form class="text-bg-dark mt-5 d-flex" (ngSubmit)="addQrCode()">
-    <label class="form-label" for="inp">Choose an image to edit</label>
-    <input #inp class="form-control" type="file" name="image" id="inp" (change)="addImage($event)">
-    <button type="submit" class="btn btn-light" >Add qr code</button>
-  </form>
+</div>
+
+
+<form class="text-bg-dark mt-5 d-flex" (ngSubmit)="addQrCode()">
+  <label class="form-label" for="inp">Choose an image to edit</label>
+  <input #inp class="form-control" type="file" name="image" id="inp" (change)="addImage($event)">
+  <button type="submit" class="btn btn-light" >Add qr code</button>
+</form>
+<button (click)="merge()" class="btn btn-light mt-5">Merge</button>
+
 
 
 

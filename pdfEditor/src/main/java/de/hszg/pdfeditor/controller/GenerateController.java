@@ -1,9 +1,8 @@
 package de.hszg.pdfeditor.controller;
 
-import de.hszg.pdfeditor.service.PdfService;
+import de.hszg.pdfeditor.service.ImageService;
 import de.hszg.pdfeditor.service.QrService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -17,7 +16,7 @@ import java.util.Optional;
 @Controller
 public class GenerateController {
     @Autowired
-    PdfService pdfService;
+    ImageService imageService;
     @Autowired
     QrService qrService;
 //        TODO: add config
@@ -30,7 +29,8 @@ public class GenerateController {
 
     @PostMapping(value = {"/qr/{enlargement}", "/qr"}, produces = "image/png")
     public ResponseEntity<byte[]> generateQr(@RequestBody String ticketJson, @PathVariable(required = false) Optional<Integer> enlargement) {
-        ByteArrayOutputStream outImg = pdfService.generateQrPng(qrService.createQrCode(ticketJson), enlargement.orElse(0));
+        ByteArrayOutputStream outImg = imageService.generateQrPng(qrService.createQrCode(ticketJson), enlargement.orElse(0));
+//        imageService.generateQrSVG(qrService.createSvgQrCode(ticketJson, enlargement.orElse(100)));
         return ResponseEntity
                 .status(200)
                 .body(outImg.toByteArray());
@@ -41,7 +41,7 @@ public class GenerateController {
 //        TODO: save qrs with name of the user
 
 
-        pdfService.addQrToImage(ImageIO.read(fileQr), sourcePng, path, x, y);
+        imageService.addQrToImage(ImageIO.read(fileQr), sourcePng, path, x, y);
 
         return ResponseEntity.ok("{\"message\": \"Images merged\"}");
     }

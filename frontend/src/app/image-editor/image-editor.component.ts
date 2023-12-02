@@ -44,7 +44,7 @@ export class ImageEditorComponent {
     let filereader = new FileReader()
     let tmp = this.url;
 
-    if (this.qrSize.value !== "") {
+    if (this.qrSize.value !== "" && this.qrSize.value != null) {
       tmp = this.url + "/" + this.qrSize.value;
     }
 
