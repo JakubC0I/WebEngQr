@@ -4,30 +4,24 @@
 </head>
 <body>
     <div class="upperBar">
-        <h1>Database interaction test</h1>
-    </div>
-    <div class="baseWrapper">
-        <p>Content of the database:</p>
-        <pre class="databaseContent" id="dbContent"></pre>
-    </div>
-    <div class="baseWrapper">
-        <button type="button" onclick="changeContent()">Display database content</button>
-        <form>
-            <input type="text" id="textId" name="textName"><br>
-            <button type="button" onclick="submitForm()">Append data to database</button>
-        </form>
-    </div>
-    <div class="baseWrapper">
-        <p>Is your file in the database:</p>
-        <pre class="databaseContent" id="dbExists"></pre>
+        <h1>Login/Register</h1>
     </div>
     <div class="baseWrapper">
         <form>
-            <input type="text" id="textId2" name="textName2"><br>
-            <button type="button" onclick="findData()">Find data in database</button>
+            <input type="text" id="loginId" name="loginTextfield"><br>
+            <input type="password" id="passwordId" name="passwordTextfield"><br>
+            <button type="button" onclick="login()">Login</button>
         </form>
+        <p id="loginRepsonse"></p>
     </div>
+    <div class="baseWrapper">
+        <form>
+            <input type="text" id="loginId-reg" name="loginTextfield"><br>
+            <input type="password" id="passwordId-reg" name="passwordTextfield"><br>
+            <button type="button" onclick="register()">Register</button>
+        <p id="registerRepsonse"></p>
+    </form>
 </body>
 
-<script src="./scripts/browser-interaction.js"></script>
+<script src="./scripts/login-register-script.js"></script>
 </html>
