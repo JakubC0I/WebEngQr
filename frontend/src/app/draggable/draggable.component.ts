@@ -50,8 +50,15 @@ export class DraggableComponent {
   merge() {
     const qr = this.qrImage.nativeElement
     const div = this.dragDiv.nativeElement
+    const canvas = this.imageCanvas.nativeElement
     console.log(`OFFSETS: TOP: ${div.offsetTop} ; LEFT: ${div.offsetLeft}`)
     this.ctx.drawImage(qr, div.offsetLeft, div.offsetTop)
+    let canvasUrl = canvas.toDataURL("image/png")
+    const createEl = document.createElement('a');
+    createEl.href = canvasUrl;
+    createEl.download = "image_with_qrCode";
+    createEl.click();
+    createEl.remove();
   }
 
 

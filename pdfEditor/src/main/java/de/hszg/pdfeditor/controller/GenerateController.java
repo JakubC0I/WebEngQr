@@ -1,8 +1,12 @@
 package de.hszg.pdfeditor.controller;
 
+import com.google.zxing.WriterException;
 import de.hszg.pdfeditor.service.ImageService;
 import de.hszg.pdfeditor.service.QrService;
+import org.jfree.svg.SVGGraphics2D;
+import org.jfree.svg.SVGUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -30,11 +34,23 @@ public class GenerateController {
     @PostMapping(value = {"/qr/{enlargement}", "/qr"}, produces = "image/png")
     public ResponseEntity<byte[]> generateQr(@RequestBody String ticketJson, @PathVariable(required = false) Optional<Integer> enlargement) {
         ByteArrayOutputStream outImg = imageService.generateQrPng(qrService.createQrCode(ticketJson), enlargement.orElse(0));
-//        imageService.generateQrSVG(qrService.createSvgQrCode(ticketJson, enlargement.orElse(100)));
         return ResponseEntity
                 .status(200)
                 .body(outImg.toByteArray());
     }
+//    Not sure if needed
+//    @PostMapping("/qr/svg/{enlargement}")
+//    public ResponseEntity generateSvgQr(@RequestBody String ticketJson, @PathVariable(required = false) Optional<Integer> enlargement) {
+//        ByteArrayOutputStream svgOut = new ByteArrayOutputStream();
+//        try {
+//            imageService.generateQrSVG(qrService.createSvgQrCode(ticketJson, enlargement.orElse(100)), svgOut);
+//        } catch (WriterException | IOException e) {
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+//        }
+//        return ResponseEntity
+//                .status(200)
+//                .body(svgOut.toByteArray());
+//    }
 
     @GetMapping("/merge")
     public ResponseEntity mergeImageWithQr(@RequestParam int x, @RequestParam int y) throws IOException {

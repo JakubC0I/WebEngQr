@@ -1,5 +1,6 @@
 package de.hszg.pdfeditor.service;
 
+import com.google.zxing.common.BitMatrix;
 import com.itextpdf.barcodes.BarcodeQRCode;
 import com.itextpdf.barcodes.qrcode.ByteMatrix;
 import com.itextpdf.kernel.colors.Color;
@@ -8,7 +9,9 @@ import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.kernel.pdf.canvas.PdfCanvas;
 import com.itextpdf.kernel.pdf.colorspace.PdfCieBasedCs;
+import org.bouncycastle.util.Strings;
 import org.jfree.svg.SVGGraphics2D;
+import org.jfree.svg.SVGUtils;
 import org.springframework.stereotype.Service;
 
 import javax.imageio.ImageIO;
@@ -21,17 +24,6 @@ import java.io.IOException;
 
 @Service
 public class ImageService {
-
-    public PdfDocument createPdfDocument(String path) {
-        PdfWriter pdfWriter;
-        try {
-            pdfWriter = new PdfWriter(path);
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
-        }
-        PdfDocument pdfDocument = new PdfDocument(pdfWriter);
-        return pdfDocument;
-    }
 
     public ByteArrayOutputStream generateQrPng(BarcodeQRCode qr, int enlarge) {
         ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
@@ -54,11 +46,6 @@ public class ImageService {
         return byteOut;
     }
 
-    public Rectangle addQrCodeToPdfCanvas(BarcodeQRCode qr, PdfCanvas canvas) {
-        PdfCieBasedCs pdfColor = new PdfCieBasedCs.CalGray(new float[]{255, 255, 255});
-        return qr.placeBarcode(canvas, Color.makeColor(pdfColor));
-    }
-
     public void addQrToImage(BufferedImage qrCode, File sourceFile, File destination, int posx, int posy){
         try {
             BufferedImage read = ImageIO.read(sourceFile);
@@ -79,9 +66,20 @@ public class ImageService {
     }
 
 
-    public void generateQrSVG(ByteMatrix byteMatrix) {
-        int matrixWidth = byteMatrix.getWidth();
-        int matrixHeight = byteMatrix.getHeight();
+    public void generateQrSVG(BitMatrix bitMatrix, ByteArrayOutputStream byteOut) throws IOException {
+        int matrixWidth = bitMatrix.getWidth();
+        int matrixHeight = bitMatrix.getHeight();
         SVGGraphics2D g2 = new SVGGraphics2D(matrixWidth, matrixWidth);
+        g2.setColor(java.awt.Color.BLACK);
+        for (int i = 0; i < matrixWidth; i++) {
+            for (int j = 0; j < matrixHeight; j++) {
+                if (bitMatrix.get(i, j)) {
+                    g2.fillRect(i, j, 1, 1);
+                }
+            }
+        }
+        String svgElement = g2.getSVGElement();
+
+        byteOut.write(Strings.toByteArray(svgElement));
     }
 }

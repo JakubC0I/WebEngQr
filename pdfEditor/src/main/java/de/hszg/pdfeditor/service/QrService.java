@@ -3,39 +3,27 @@ package de.hszg.pdfeditor.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.EncodeHintType;
+import com.google.zxing.WriterException;
+import com.google.zxing.common.BitMatrix;
+import com.google.zxing.qrcode.QRCodeWriter;
 import com.itextpdf.barcodes.BarcodeDataMatrix;
 import com.itextpdf.barcodes.BarcodeQRCode;
 import com.itextpdf.barcodes.qrcode.ByteMatrix;
-import com.itextpdf.barcodes.qrcode.QRCodeWriter;
-import com.itextpdf.kernel.colors.Color;
-import com.itextpdf.kernel.geom.Matrix;
-import com.itextpdf.kernel.geom.Rectangle;
-import com.itextpdf.kernel.pdf.PdfDocument;
-import com.itextpdf.kernel.pdf.PdfObject;
-import com.itextpdf.kernel.pdf.PdfWriter;
-import com.itextpdf.kernel.pdf.canvas.PdfCanvas;
-import com.itextpdf.kernel.pdf.colorspace.PdfCieBasedCs;
-import com.itextpdf.kernel.pdf.colorspace.PdfColorSpace;
-import com.itextpdf.layout.element.Image;
-import com.itextpdf.svg.converter.SvgConverter;
 import de.hszg.pdfeditor.data.Ticket;
-import org.apache.logging.log4j.util.Base64Util;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.KeyGenerator;
 import javax.crypto.NoSuchPaddingException;
-import java.awt.*;
-import java.io.ByteArrayInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 public class QrService {
@@ -50,9 +38,9 @@ public class QrService {
         return new BarcodeQRCode(encryptTicket(ticketJson));
     }
 
-    public ByteMatrix createSvgQrCode(String ticketJson, int size) {
+    public BitMatrix createSvgQrCode(String ticketJson, int size) throws WriterException {
         QRCodeWriter qrCodeWriter = new QRCodeWriter();
-        return qrCodeWriter.encode(encryptTicket(ticketJson), size, size);
+        return qrCodeWriter.encode(encryptTicket(ticketJson), BarcodeFormat.QR_CODE, size, size);
     }
 
     public String encryptTicket(String ticketJson) {
