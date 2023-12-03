@@ -26,6 +26,9 @@ const cookieParser = require('cookie-parser');
 const jwt = require('jsonwebtoken');
 const secretKey = 'EeWhIW7NGEKIgUmzO0CWryDbwtJsx150'
 server.use(cookieParser());
+
+const AccountsColl = 'Accounts'
+const LoginField = 'login_data.login='
 //#endregion
 
 //#region bcrypt init
@@ -43,7 +46,8 @@ server.post("/register", jsonParser, async function (req, res) {
     const receivedPassword = req.body.password;
 
     try {
-        const account = await pb.collection('Accounts').getFirstListItem(`login_data.login="${receivedLogin}"`)
+        // Checks if account exists, will return error if false
+        const account = await getUserByLogin(receivedLogin)
         res.send("User with specified login already exists");  
         }
     catch {
@@ -51,7 +55,7 @@ server.post("/register", jsonParser, async function (req, res) {
             await pb.collection('Accounts').create({ login_data: {
                 login: receivedLogin , password: hash
             }})
-            res.send("registered with: Login: " + receivedLogin + "/ Pass: " + receivedPassword + "/ Hashedpass: " + hash);
+            res.send("registered with: Login: " + receivedLogin + " / Pass: " + receivedPassword + " / Hashedpass: " + hash);
         });
     }
     res.status(200);
@@ -64,7 +68,7 @@ server.post("/login", jsonParser, async function (req, res) {
     const receivedLogin = req.body.login;
     const receivedPassword = req.body.password;
 
-    const account = await pb.collection('Accounts').getFirstListItem(`login_data.login="${receivedLogin}"`)
+    const account = await getUserByLogin(receivedLogin)
     //DUMB THING VERY DUMB WHY DO I HAVE TO ADD THOSE QUOTES WTHHH
 
     const hashedPassFromDb = account.login_data.password
@@ -92,7 +96,6 @@ server.get('/protected-route', (req, res) => {
     if (!token) {
       return res.status(401).json({ success: false, message: 'Unauthorized' });
     }
-  
     // Verify the token
     jwt.verify(token, secretKey, (err, decoded) => {
       if (err) {
@@ -101,15 +104,21 @@ server.get('/protected-route', (req, res) => {
       }
   
       // if the token is valid it will return the login upon decoding
-      const userLogin = decoded.userLogin;
+      const userLogin = decoded.receivedLogin;
       
       // redirect to protected path here
 
       res.json({ success: true, message: `Welcome, user ${userLogin}!` });
-      res.send(userLogin)
     });
     res.status(200);
 });
+//#endregion
+
+//#region additional methods
+function getUserByLogin(recievedLogin)
+{
+    return pb.collection(AccountsColl).getFirstListItem(LoginField+`"${recievedLogin}"`)
+}
 //#endregion
 
 //start server
