@@ -1,6 +1,7 @@
 //#region init
 //#region initial init?
 const path = require('path');
+const {createAdmin, createCollections} = require('./scripts/initDB')
 //#endregion
 
 //#region express init
@@ -13,7 +14,19 @@ server.use(express.static(path.join(__dirname, ".")));
 //#region pocketBase init
 const PocketBase = require('pocketbase/cjs')
 const pb = new PocketBase('http://127.0.0.1:8090')
-const authData = pb.admins.authWithPassword('admin@admin.admin', '"]SLD;,3d>rj~S2');
+let authData;
+
+
+try {
+     authData = pb.admins.authWithPassword('admin@admin.admin', '"]SLD;,3d>rj~S2');
+}catch (e) {
+    if (e.constructor === ClientResponseError) {
+        createAdmin()
+        createCollections(pb)
+        authData = pb.admins.authWithPassword('admin@admin.admin', '"]SLD;,3d>rj~S2');
+    }
+}
+
 //#endregion
 
 //#region parsers init
@@ -39,7 +52,7 @@ const saltRounds = 10;
 
 //#region server operations
 //#region register
-server.post("/register", jsonParser, async function (req, res) {
+server.post("/user/register", jsonParser, async function (req, res) {
 
     console.log("/register requested");
     const receivedLogin = req.body.login;
@@ -48,21 +61,30 @@ server.post("/register", jsonParser, async function (req, res) {
     try {
         // Checks if account exists, will return error if false
         const account = await getUserByLogin(receivedLogin)
-        res.send("User with specified login already exists");  
+        res.json({
+            ok: false,
+            message:"User with specified login already exists"});
+        res.status(404);
+        res.end()
         }
     catch {
         bcrypt.hash(receivedPassword, saltRounds, async function(err, hash) {
-            await pb.collection('Accounts').create({ login_data: {
+            await pb.collection(AccountsColl).create({ login_data: {
                 login: receivedLogin , password: hash
             }})
-            res.send("registered with: Login: " + receivedLogin + " / Pass: " + receivedPassword + " / Hashedpass: " + hash);
+            res.json({
+                ok: true,
+                message:"registered"});
+            res.status(200);
+            res.end()
         });
+
     }
-    res.status(200);
+
 });
 //#endregion
 //#region login
-server.post("/login", jsonParser, async function (req, res) {
+server.post("/user/login", jsonParser, async function (req, res) {
 
     console.log("/login requested");
     const receivedLogin = req.body.login;
@@ -78,19 +100,21 @@ server.post("/login", jsonParser, async function (req, res) {
         if(compare) {
             const token = jwt.sign({ receivedLogin }, secretKey, { expiresIn: '1h' });
             res.cookie('loginToken', token, { httpOnly: true, maxAge: 3600000 });
-            res.json({ success: true, message: 'Login successful' });
+            res.json({ ok: true, message: 'Login successful' });
         }
         else {
-            res.json({ success: false, message: 'Wrong password' });
+            res.json({ ok: false, message: 'Wrong password' });
         }
+        res.end()
     }catch(e){
         console.log(e)
-        res.json({ success: false, message: 'Error' });
+        res.json({ ok: false, message: 'Error' });
+        res.end()
     }
 });
 //#endregion
 //#region cookies/login protection
-server.get('/protected-route', (req, res) => {
+server.get('/user/protected-route', (req, res) => {
     const token = req.cookies.loginToken;
   
     if (!token) {
