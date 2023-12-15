@@ -1,3 +1,21 @@
 .carouselheight {
     height: 55vh;
 }
+
+.carmain {
+    background-size: cover;
+    background-position: center;
+    image-rendering: pixelated;
+}
+
+.car1 {
+    background-image:url('../../assets/carousel-backgrounds/car1.png');
+}
+
+.car2 {
+    background-image: url('../../assets/carousel-backgrounds/car2.png');
+}
+
+.car3 {
+    background-image: url('../../assets/carousel-backgrounds/car3.png');
+}
