@@ -1,0 +1,9 @@
+.mainwindow {
+  height: 70vh;
+}
+
+.wrapperwindow {
+  padding: 5%; 
+  width: 40vw; 
+  min-width: 300px;
+}

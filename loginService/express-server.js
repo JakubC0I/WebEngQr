@@ -42,6 +42,8 @@ server.use(cookieParser());
 
 const AccountsColl = 'Accounts'
 const LoginField = 'login_data.login='
+const EmailField = 'login_data.email='
+
 //#endregion
 
 //#region bcrypt init
@@ -57,6 +59,8 @@ server.post("/user/register", jsonParser, async function (req, res) {
     console.log("/register requested");
     const receivedLogin = req.body.login;
     const receivedPassword = req.body.password;
+    const receivedPassword2 = req.body.password2;
+    const recievedEmail = req.body.email;
 
     try {
         // Checks if account exists, will return error if false
@@ -67,10 +71,23 @@ server.post("/user/register", jsonParser, async function (req, res) {
         res.status(404);
         res.end()
         }
+    catch {}
+    try {
+        const account = await getUserByEmail(recievedEmail)
+        res.json({
+            ok: false,
+            message:"User with specified email already exists"});
+        res.status(404);
+        res.end()
+    }
     catch {
+        if(receivedPassword != receivedPassword2)
+        {
+            res.send("Recieved passwords do not match")
+        }
         bcrypt.hash(receivedPassword, saltRounds, async function(err, hash) {
             await pb.collection(AccountsColl).create({ login_data: {
-                login: receivedLogin , password: hash
+                email: recievedEmail, login: receivedLogin , password: hash
             }})
             res.json({
                 ok: true,
@@ -91,7 +108,6 @@ server.post("/user/login", jsonParser, async function (req, res) {
     const receivedPassword = req.body.password;
 
     const account = await getUserByLogin(receivedLogin)
-    //DUMB THING VERY DUMB WHY DO I HAVE TO ADD THOSE QUOTES WTHHH
 
     const hashedPassFromDb = account.login_data.password
 
@@ -142,6 +158,11 @@ server.get('/user/protected-route', (req, res) => {
 function getUserByLogin(recievedLogin)
 {
     return pb.collection(AccountsColl).getFirstListItem(LoginField+`"${recievedLogin}"`)
+}
+
+function getUserByEmail(recievedEmail)
+{
+    return pb.collection(AccountsColl).getFirstListItem(EmailField+`"${recievedEmail}"`)
 }
 //#endregion
 

@@ -1,0 +1,17 @@
+<div class="container mainwindow d-flex align-items-center">
+  <div class="card container text-bg-light wrapperwindow">
+    <form method="post" (ngSubmit)="submitForm()" [formGroup]="userForm">
+      <label for="login" class="form-label fs-5">Enter your username:</label>
+      <input formControlName="login" type="text" placeholder="Username" class="form-control" name="login" id="login">
+      <label for="password" class="form-label fs-5">Enter your password:</label>
+      <input formControlName="password" type="password" placeholder="Password" class="form-control" name="password" id="password">
+      <div class="d-grid gap-2 col-6 mx-auto w-100">
+        <button type="submit" class="btn btn-primary mt-4">Log in</button>
+        <br>
+        <a href="../register">
+          <button type="button" class="btn btn-outline-primary w-100" name="Submit" id="reg">Create account</button>
+        </a>
+      </div>
+    </form>
+  </div>
+</div>
