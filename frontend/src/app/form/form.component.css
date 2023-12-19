@@ -9,3 +9,13 @@
   border-radius: 6px;
   width: max-content;
 }
+
+.mainwindow {
+  height: 70vh;
+}
+
+.wrapperwindow {
+  padding: 10%; 
+  width: 40vw; 
+  min-width: 300px;
+}

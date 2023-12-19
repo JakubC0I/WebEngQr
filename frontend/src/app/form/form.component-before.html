@@ -1,0 +1,7 @@
+<form method="post" class="absolute-window text-bg-dark" (ngSubmit)="submitForm()" [formGroup]="userForm">
+  <label for="login" class="form-label fs-5">Enter your login</label>
+  <input formControlName="login" type="text" placeholder="login" class="form-control mb-4" name="login" id="login">
+  <label for="password" class="form-label fs-5">Enter your password</label>
+  <input formControlName="password" type="password" placeholder="password" class="form-control" name="password" id="password">
+  <button type="submit" class="btn btn-light mt-4">{{action}}</button>
+</form>
