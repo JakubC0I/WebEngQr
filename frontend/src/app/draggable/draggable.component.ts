@@ -1,11 +1,14 @@
-import {Component, ElementRef, Input, ViewChild, EventEmitter, Output} from '@angular/core';
-import { CommonModule } from '@angular/common';
+import {Component, ElementRef, EventEmitter, Input, Output, SecurityContext, ViewChild} from '@angular/core';
+import {CommonModule, NgOptimizedImage} from '@angular/common';
 import {FormsModule} from "@angular/forms";
+import {QRCodeModule} from "angularx-qrcode";
+import {DomSanitizer, SafeUrl} from "@angular/platform-browser";
+import {DataLoaderComponent} from "../data-loader/data-loader.component";
 
 @Component({
   selector: 'app-draggable',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, QRCodeModule, NgOptimizedImage, DataLoaderComponent],
   templateUrl: './draggable.component.html',
   styleUrl: './draggable.component.css'
 })
@@ -17,13 +20,20 @@ export class DraggableComponent {
   @ViewChild("myCanvas") imageCanvas!: ElementRef;
   @ViewChild("qrImage") qrImage!: ElementRef;
 
-
   @Input() imageData = ""
+  @Input() image = ""
+  @Input() qrSize !: string
   @Output() dropQr = new EventEmitter()
   @Output() div= this.dragDiv;
+  multi = false
+  multiMergeData : {}[] = []
 
+  imageSource = ""
 
-  private qr!:HTMLImageElement;
+  qrData = "";
+
+  constructor(private sanitizer : DomSanitizer) {
+  }
 
   addImage(e: Event) {
     let file = this.input.nativeElement.files[0];
@@ -43,22 +53,64 @@ export class DraggableComponent {
 
 
   addQrCode() {
-    this.qrImage.nativeElement.src = this.imageData;
+    if (this.imageData != '') {
+      this.qrData = this.imageData
+    } else {
+      this.imageSource = this.image;
+    }
+    console.log(this.qrSize)
   }
 
+  onChangeURL(url : SafeUrl) {
+    console.log(`URL: ${url}`)
+    this.imageSource = url as string;
+  }
 
-  merge() {
-    const qr = this.qrImage.nativeElement
+  async merge(data ?: string) {
     const div = this.dragDiv.nativeElement
     const canvas = this.imageCanvas.nativeElement
-    console.log(`OFFSETS: TOP: ${div.offsetTop} ; LEFT: ${div.offsetLeft}`)
-    this.ctx.drawImage(qr, div.offsetLeft, div.offsetTop)
+    // console.log(`OFFSETS: TOP: ${div.offsetTop} ; LEFT: ${div.offsetLeft}`)
+    if (data) {
+      this.qrData = data
+    }
+    console.log(this.qrImage.nativeElement.src)
+
+    this.ctx.drawImage(this.qrImage.nativeElement, div.offsetLeft, div.offsetTop)
+  }
+
+  downloadImage(canvas : HTMLCanvasElement) {
     let canvasUrl = canvas.toDataURL("image/png")
     const createEl = document.createElement('a');
     createEl.href = canvasUrl;
     createEl.download = "image_with_qrCode";
     createEl.click();
     createEl.remove();
+  }
+
+  toDataUrl(data : string, filereader : FileReader) {
+
+  }
+
+  multiMerge() {
+    this.multi = true
+    this.multiMergeData.forEach(element => {
+      this.merge(JSON.stringify(element)).then()
+    })
+  }
+
+  generateQrLocal(csv: string[][]) {
+    for (let height = 0; height < csv.length; height++) {
+      let tmp: { [key: string]: string } = {};
+
+      if (height == 0) {
+        continue;
+      }
+      for (let width = 0; width < csv[height].length; width++) {
+        tmp[csv[0][width]] = csv[height][width];
+      }
+      this.multiMergeData.push(tmp)
+    }
+    this.imageData = JSON.stringify(this.multiMergeData[0]);
   }
 
 
@@ -69,8 +121,7 @@ export class DraggableComponent {
     var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
     var element = this.dragDiv.nativeElement
     const canvas = this.imageCanvas.nativeElement
-    const qr = this.qrImage.nativeElement
-    dragTouchDown(e, canvas.height, canvas.width,qr)
+    dragTouchDown(e, canvas.height, canvas.width,this.qrImage.nativeElement)
 
     function dragTouchDown(e: TouchEvent, canvasHeight:number, canvasWidth:number, qr:HTMLImageElement) {
       e.preventDefault();
@@ -94,16 +145,16 @@ export class DraggableComponent {
       pos3 = e.targetTouches[0].clientX;
       pos4 = e.targetTouches[0].clientY;
       // set the element's new position:
-      if (element.offsetTop - pos2 > canvasHeight- qr.height) {
-        element.style.top = canvasHeight
-      } else if(element.offsetTop - pos2 < 0) {
+      if (element.offsetTop - pos2 >= canvasHeight- qr.height) {
+        element.style.top = canvasHeight - qr.height
+      } else if(element.offsetTop - pos2 <= 0) {
         element.style.top = 0
       } else {
         element.style.top = (element.offsetTop - pos2) + "px";
       }
-      if (element.offsetLeft - pos1> canvasWidth- qr.width) {
-        element.style.left = canvasWidth
-      } else if(element.offsetLeft - pos1 < 0){
+      if (element.offsetLeft - pos1 >= canvasWidth- qr.width) {
+        element.style.left = canvasWidth - qr.width
+      } else if(element.offsetLeft - pos1 <= 0){
         element.style.left = 0;
       } else {
         element.style.left = (element.offsetLeft - pos1) + "px";
@@ -124,8 +175,7 @@ export class DraggableComponent {
     var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
     var element = this.dragDiv.nativeElement
     const canvas = this.imageCanvas.nativeElement
-    const qr = this.qrImage.nativeElement
-    dragMouseDown(e, canvas.height, canvas.width,qr)
+    dragMouseDown(e, canvas.height, canvas.width,this.qrImage.nativeElement)
 
 
 
@@ -142,7 +192,6 @@ export class DraggableComponent {
     }
 
     function elementMouseDrag(e: MouseEvent, canvasHeight:number, canvasWidth:number, qr:HTMLImageElement) {
-      console.log(`HEIGHT: ${canvasHeight} WIDTH: ${canvasWidth}`)
 
       e.preventDefault();
       // calculate the new cursor position:
@@ -151,16 +200,16 @@ export class DraggableComponent {
       pos3 = e.clientX;
       pos4 = e.clientY;
       // set the element's new position:
-      if (element.offsetTop - pos2 > canvasHeight- qr.height) {
-        element.style.top = canvasHeight
-      } else if(element.offsetTop - pos2 < 0) {
+      if (element.offsetTop - pos2 >= canvasHeight - qr.height) {
+        element.style.top = canvasHeight - qr.height
+      } else if(element.offsetTop - pos2 <= 0) {
         element.style.top = 0
       } else {
         element.style.top = (element.offsetTop - pos2) + "px";
       }
-      if (element.offsetLeft - pos1> canvasWidth- qr.width) {
-        element.style.left = canvasWidth
-      } else if(element.offsetLeft - pos1 < 0){
+      if (element.offsetLeft - pos1 >= canvasWidth - qr.width) {
+        element.style.left = canvasWidth - qr.width
+      } else if(element.offsetLeft - pos1 <= 0){
         element.style.left = 0;
       } else {
         element.style.left = (element.offsetLeft - pos1) + "px";
@@ -177,4 +226,5 @@ export class DraggableComponent {
     }
   }
 
+  protected readonly parseInt = parseInt;
 }

@@ -1,4 +1,4 @@
-import {Component, ElementRef, ViewChild} from '@angular/core';
+import {Component, ElementRef, Output, ViewChild, EventEmitter, Input} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {FormControl, FormGroup, FormsModule, ReactiveFormsModule} from "@angular/forms";
 
@@ -13,6 +13,7 @@ export class DataLoaderComponent {
 
   @ViewChild("data") inputData !: ElementRef
 
+  @Output() parseCsv = new EventEmitter<string[][]>();
   loaderGroup = new FormGroup(
     {file : new FormControl()}
   )
@@ -46,7 +47,7 @@ export class DataLoaderComponent {
           rows.forEach((entry) => {
             complete.push(entry.split(separator))
           })
-          console.log(complete)
+          this.parseCsv.emit(complete)
         }
       }
     }

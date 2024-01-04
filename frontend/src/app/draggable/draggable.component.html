@@ -1,6 +1,9 @@
+<app-data-loader (parseCsv)="generateQrLocal($event)"></app-data-loader>
+
+
 <div class="canvasBox">
   <div #draggable class="draggable" (touchstart)="touchDragElement($event)" (mousedown)="dragElement($event)">
-    <img #qrImage>
+    <img #qrImage [src]="imageSource">
   </div>
   <canvas #myCanvas id="canvas">
   </canvas>
@@ -13,7 +16,11 @@
   <input #inp class="form-control" type="file" name="image" id="inp" (change)="addImage($event)">
   <button type="submit" class="btn btn-light" >Add qr code</button>
 </form>
-<button (click)="merge()" class="btn btn-light mt-5">Merge</button>
+<button *ngIf="!(multiMergeData.length > 0)" (click)="merge(imageSource)" class="btn btn-light mt-5">Merge</button>
+<button *ngIf="multiMergeData.length > 0" (click)="multiMerge()" class="btn btn-light mt-5">Merge({{multiMergeData.length}})</button>
+
+<qrcode class="d-none" (qrCodeURL)="onChangeURL($event)" [qrdata]="qrData" [width]="parseInt(qrSize)"></qrcode>
+
 
 
 

@@ -36,7 +36,5 @@
       <input class="text-center" [formControl]="qrSize" type="text" id="qrSize">
     </div>
   </form>
-
-
-  <app-draggable imageData="{{image}}"></app-draggable>
+  <app-draggable imageData="{{imageData}}" image="{{image}}" qrSize="{{qrSize.value}}"></app-draggable>
 </div>

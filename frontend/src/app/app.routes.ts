@@ -9,7 +9,8 @@ import { ContactComponent } from './contact/contact.component';
 export const routes: Routes = [
   {path: "login", component: LoginComponent, data: {"action": "login"}},
   {path: "register", component: RegisterComponent, data: {"action": "register"}},
-  {path: "ticket", component: ImageEditorComponent, canActivate: [jwtGuard]},
+  {path: "ticket", component: ImageEditorComponent},
+  // , canActivate: [jwtGuard]
   {path: "contact", component: ContactComponent},
   {path : "", component: IndexComponent}
 ];
