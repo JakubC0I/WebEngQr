@@ -76,6 +76,7 @@ export class DraggableComponent {
     console.log(this.qrImage.nativeElement.src)
 
     this.ctx.drawImage(this.qrImage.nativeElement, div.offsetLeft, div.offsetTop)
+    this.downloadImage(canvas)
   }
 
   downloadImage(canvas : HTMLCanvasElement) {
