@@ -4,6 +4,7 @@ import {FormsModule} from "@angular/forms";
 import {QRCodeModule} from "angularx-qrcode";
 import {DomSanitizer, SafeUrl} from "@angular/platform-browser";
 import {DataLoaderComponent} from "../data-loader/data-loader.component";
+import { QrService } from '../services/qr.service';
 
 @Component({
   selector: 'app-draggable',
@@ -32,9 +33,9 @@ export class DraggableComponent {
 
   qrData = "";
 
-  constructor(private sanitizer : DomSanitizer) {
+  constructor(private qrService : QrService) {
   }
-
+// Clean up: create services for image
   addImage(e: Event) {
     let file = this.input.nativeElement.files[0];
     const canvas = this.imageCanvas.nativeElement
@@ -66,21 +67,7 @@ export class DraggableComponent {
     this.imageSource = url as string;
   }
 
-  async merge(data ?: string) {
-    const div = this.dragDiv.nativeElement
-    const canvas = this.imageCanvas.nativeElement
-    // console.log(`OFFSETS: TOP: ${div.offsetTop} ; LEFT: ${div.offsetLeft}`)
-    if (data) {
-      this.qrData = data
-    }
-    console.log(this.qrImage.nativeElement.src)
-
-    this.ctx.drawImage(this.qrImage.nativeElement, div.offsetLeft, div.offsetTop)
-    this.downloadImage(canvas)
-  }
-
-  downloadImage(canvas : HTMLCanvasElement) {
-    let canvasUrl = canvas.toDataURL("image/png")
+  downloadImage(canvasUrl : string) {
     const createEl = document.createElement('a');
     createEl.href = canvasUrl;
     createEl.download = "image_with_qrCode";
@@ -91,13 +78,40 @@ export class DraggableComponent {
   toDataUrl(data : string, filereader : FileReader) {
 
   }
-
-  multiMerge() {
-    this.multi = true
-    this.multiMergeData.forEach(element => {
-      this.merge(JSON.stringify(element)).then()
-    })
+  
+private async merge(qrCodeUrl ?: string): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const div = this.dragDiv.nativeElement
+        const qrCodeImage = new Image();
+        qrCodeImage.onload = () => {
+          this.ctx.drawImage(qrCodeImage, div.offsetLeft, div.offsetTop);
+          const dataUrl = this.imageCanvas.nativeElement.toDataURL("image/png");
+          resolve(dataUrl);
+        };
+        qrCodeImage.onerror = reject;
+        if (qrCodeUrl) {
+          qrCodeImage.src = qrCodeUrl;
+        } else {
+          qrCodeImage.src = this.qrImage.nativeElement.src;
+        }
+      });
   }
+  multiMerge() {
+    this.multiMergeData.forEach(element =>
+      this.qrService.encodeQRCode(JSON.stringify(element)).then(result => {
+        this.merge(result).then(canvasUrl => {
+          this.downloadImage(canvasUrl);
+          });
+        console.log(`${element} ADDED`);
+      })
+    );
+  }
+
+  mergeDownload() {
+    this.merge().then(canvasUrl => {
+      this.downloadImage(canvasUrl);
+    })
+  };
 
   generateQrLocal(csv: string[][]) {
     for (let height = 0; height < csv.length; height++) {
