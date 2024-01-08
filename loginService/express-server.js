@@ -16,7 +16,6 @@ const PocketBase = require('pocketbase/cjs')
 const pb = new PocketBase('http://127.0.0.1:8090')
 let authData;
 
-
 try {
      authData = pb.admins.authWithPassword('admin@admin.admin', '"]SLD;,3d>rj~S2');
 }catch (e) {
@@ -48,6 +47,7 @@ const EmailField = 'login_data.email='
 
 //#region bcrypt init
 const bcrypt = require('bcrypt');
+const { log } = require('console');
 const saltRounds = 10;
 //#endregion
 //#endregion
@@ -101,31 +101,35 @@ server.post("/user/register", jsonParser, async function (req, res) {
 });
 //#endregion
 //#region login
-server.post("/user/login", jsonParser, async function (req, res) {
 
+server.post("/user/login", jsonParser, async function (req, res) {
     console.log("/login requested");
-    const receivedLogin = req.body.login;
+    const receivedLogin = req.body.username;
     const receivedPassword = req.body.password;
 
-    const account = await getUserByLogin(receivedLogin)
-
-    const hashedPassFromDb = account.login_data.password
-
     try {
-        var compare = await bcrypt.compare(receivedPassword, hashedPassFromDb)
+        console.log(receivedLogin);
+        const account = await getUserByLogin(receivedLogin);
+
+        // Check if account exists
+        if (!account) {
+            res.status(401).json({ ok: false, message: 'Invalid login' });
+            return;
+        }
+
+        const hashedPassFromDb = account.login_data.password;
+        const compare = await bcrypt.compare(receivedPassword, hashedPassFromDb);
+
         if(compare) {
             const token = jwt.sign({ receivedLogin }, secretKey, { expiresIn: '1h' });
             res.cookie('loginToken', token, { httpOnly: true, maxAge: 3600000 });
             res.json({ ok: true, message: 'Login successful' });
+        } else {
+            res.status(401).json({ ok: false, message: 'Wrong password' });
         }
-        else {
-            res.json({ ok: false, message: 'Wrong password' });
-        }
-        res.end()
-    }catch(e){
-        console.log(e)
-        res.json({ ok: false, message: 'Error' });
-        res.end()
+    } catch(e) {
+        console.error(e);
+        res.status(500).json({ ok: false, message: 'Server error' });
     }
 });
 //#endregion
@@ -150,6 +154,13 @@ server.get('/user/protected-route', (req, res) => {
 
       res.json({ success: true, message: `Welcome, user ${userLogin}!` });
     });
+    res.status(200);
+});
+
+server.post('/user/logout', (req, res) => {
+    console.log("/logout requested");
+    res.clearCookie('loginToken');
+    res.json({ success: true, message: 'Logged out' });
     res.status(200);
 });
 //#endregion

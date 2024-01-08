@@ -12,14 +12,13 @@
 
 
 <form class="text-bg-dark mt-5 d-flex" (ngSubmit)="addQrCode()">
-  <label class="form-label" for="inp">Choose an image to edit</label>
-  <input #inp class="form-control" type="file" name="image" id="inp" (change)="addImage($event)">
+  <label class="form-label" for="ticket">Choose an image to edit</label>
+  <input #inp class="form-control" type="file" name="image" id="ticket" (change)="addImage($event)">
   <button type="submit" class="btn btn-light" >Add qr code</button>
 </form>
 <button *ngIf="!(multiMergeData.length > 0)" (click)="mergeDownload()" class="btn btn-light mt-5">Merge</button>
 <button *ngIf="multiMergeData.length > 0" (click)="multiMerge()" class="btn btn-light mt-5">Merge({{multiMergeData.length}})</button>
 
-<qrcode class="d-none" (qrCodeURL)="onChangeURL($event)" [qrdata]="qrData" [width]="parseInt(qrSize)"></qrcode>
 
 
 

@@ -52,13 +52,9 @@ export class DraggableComponent {
     console.log(file)
   }
 
-
+// change from aangularx to normal image
   addQrCode() {
-    if (this.imageData != '') {
-      this.qrData = this.imageData
-    } else {
-      this.imageSource = this.image;
-    }
+    this.qrImage.nativeElement.src = this.image
     console.log(this.qrSize)
   }
 
@@ -113,7 +109,7 @@ private async merge(qrCodeUrl ?: string): Promise<string> {
     })
   };
 
-  generateQrLocal(csv: string[][]) {
+  async generateQrLocal(csv: string[][]) {
     for (let height = 0; height < csv.length; height++) {
       let tmp: { [key: string]: string } = {};
 
@@ -125,7 +121,7 @@ private async merge(qrCodeUrl ?: string): Promise<string> {
       }
       this.multiMergeData.push(tmp)
     }
-    this.imageData = JSON.stringify(this.multiMergeData[0]);
+    this.image = await this.qrService.encodeQRCode(JSON.stringify(this.multiMergeData[0]))
   }
 
 

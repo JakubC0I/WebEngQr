@@ -1,9 +1,10 @@
-import {Component, Input} from '@angular/core';
+import {Component, EventEmitter, Input, Output} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {FormControl, FormGroup, FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {HttpClient} from "@angular/common/http";
-import { Success } from "../../shared/model/success.model";
 import {Router} from "@angular/router";
+import { AuthService } from '../../services/auth.service';
+import { Success } from '../../shared/model/success.model';
 
 @Component({
   selector: 'app-form',
@@ -14,10 +15,11 @@ import {Router} from "@angular/router";
 })
 export class LoginComponent {
   @Input() action!: string;
+  @Output() loginSuccess = new EventEmitter<boolean>()
   http: HttpClient
   router: Router
 
-  constructor(http: HttpClient, router: Router) {
+  constructor(http: HttpClient, router: Router, private authService: AuthService) {
     this.http = http;
     this.router = router;
   }
@@ -27,15 +29,8 @@ export class LoginComponent {
     password: new FormControl()
   })
   submitForm() {
-    this.http.post<Success>(`/user/login`, this.userForm.value, {
-      headers: {
-        "Content-Type": "application/json"
-      }
-    }).subscribe((result: Success) => {
-      console.log(result.message)
-      if (result.ok) {
-        this.router.navigate(['/ticket'])
-      }
-    });
+    if (this.authService.login(this.userForm.value.login, this.userForm.value.password)) {
+      this.router.navigate(['/ticket']);
+    }
   }
 }
